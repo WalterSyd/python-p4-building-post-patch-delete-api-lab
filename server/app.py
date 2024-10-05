@@ -31,6 +31,22 @@ def bakery_by_id(id):
     bakery_serialized = bakery.to_dict()
     return make_response ( bakery_serialized, 200  )
 
+#Add view to update name of bakery
+@app.route('/bakeries/<int:id>', methods=['GET', 'PATCH'])
+def bakety_by_id(id):
+    bakery = Bakery.query.filter_by(id=id).first()
+
+    if request.method == 'PATCH':
+        data=request.form
+        bakery.name = data['name']
+        #Add & Commit to db
+        db.session.add(bakery)
+        db.session.commit()
+        #Returns a JSON response
+        bakery_serialized = bakery.to_dict()
+        response = make_response(bakery_serialized, 200)
+        return response
+
 
 #Add view to create new baked goods
 @app.route('/baked_goods', methods=['GET', 'POST'])
