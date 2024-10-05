@@ -23,14 +23,41 @@ def bakeries():
     bakeries = [bakery.to_dict() for bakery in Bakery.query.all()]
     return make_response(  bakeries,   200  )
 
-@app.route('/bakeries/<int:id>')
+
+@app.route('/bakeries/<int:id>', methods = [])
 def bakery_by_id(id):
 
     bakery = Bakery.query.filter_by(id=id).first()
     bakery_serialized = bakery.to_dict()
     return make_response ( bakery_serialized, 200  )
 
-@app.route('/baked_goods/by_price')
+
+#Add view to create new baked goods
+@app.route('/baked_goods', methods=['GET', 'POST'])
+def baked_goods():
+    if request.method == 'POST':
+        data = request.form
+        new_baked_good = BakedGood(
+            #use [] to access form data with keys using request.form
+            name = data['name'],
+            price = data['price'],
+            bakery_id = data["bakery_id"]
+        )
+        #Add & Commit to db 
+        db.session.add(new_baked_good)
+        db.session.commit()
+        #Serialize to convert into JSON
+        new_baked_good_serialized = new_baked_good.to_dict()
+        response = make_response(new_baked_good_serialized, 201)
+        return response
+    else:
+        baked_goods = [bakery.to_dict() for bakery in BakedGood.query.all()]
+        return make_response(  baked_goods,   200  )
+
+
+
+
+@app.route('/baked_goods/by_price' ,methods = ['GET', 'POST'])
 def baked_goods_by_price():
     baked_goods_by_price = BakedGood.query.order_by(BakedGood.price.desc()).all()
     baked_goods_by_price_serialized = [
