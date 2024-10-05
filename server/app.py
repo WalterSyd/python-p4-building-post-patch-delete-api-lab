@@ -46,6 +46,9 @@ def bakety_by_id(id):
         bakery_serialized = bakery.to_dict()
         response = make_response(bakery_serialized, 200)
         return response
+    else :
+        response = make_response(bakery.to_dict(), 200)
+        return response
 
 
 #Add view to create new baked goods
@@ -70,6 +73,24 @@ def baked_goods():
         baked_goods = [bakery.to_dict() for bakery in BakedGood.query.all()]
         return make_response(  baked_goods,   200  )
 
+
+#Add view that deletes baked goods from db
+@app.route('/baked_goods/<int:id>', methods=['GET', 'DELETE'])
+def baked_good_by_id(id):
+    baked_good = BakedGood.query.filter_by(id=id).first()
+
+    if request.method == 'DELETE':
+        if not baked_good:
+            response = make_response(jsonify({'error': 'Baked good not found'}), 404)
+            return response
+        db.session.delete(baked_good)
+        db.session.commit()
+        response = make_response(jsonify({'message': 'Baked good deleted successfully'}), 200)
+        return response
+    else:
+        baked_good_serialized = baked_good.to_dict()
+        return make_response(jsonify(baked_good_serialized), 200)
+    
 
 
 
